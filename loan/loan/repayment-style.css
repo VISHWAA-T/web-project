@@ -1,0 +1,121 @@
+body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color:  #e8f0f8;;
+      color: #333;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      background: #fff;
+      margin: 0 auto;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgb(0 0 0 / 0.1);
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      color: #34495e;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #2980b9;
+      outline: none;
+    }
+
+    button {
+      margin-top: 1.2rem;
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1c5980;
+    }
+
+    #message {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 600;
+      color: #e74c3c;
+      min-height: 1.4em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #2980b9;
+      color: white;
+      font-weight: 600;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f4f7fb;
+    }
+
+    tbody tr:hover {
+      background-color: #e1efff;
+    }
+
+    /* Input and button group for Loan ID */
+    label[for="loanIdInput"] {
+      margin-top: 0;
+      margin-bottom: 0.3rem;
+    }
+
+    #loanIdInput {
+      width: calc(100% - 110px);
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    button[onclick="loadRepayments()"] {
+      width: 90px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+      padding: 9px 0;
+    }

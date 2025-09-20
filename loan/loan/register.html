@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan Management - Register</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <input type="text" id="newUsername" placeholder="Username" required />
+      <input type="password" id="newPassword" placeholder="Password" required />
+      
+      <select id="newRole" required>
+        <option value="">Select Role</option>
+        <option value="CUSTOMER">Customer</option>
+
+      </select>
+      
+      <br><br>
+      <button type="submit">Register</button>
+    </form>
+
+    <p id="registerMessage" class="error"></p>
+    <p>Already have an account? <a href="index.html">Go to Login</a></p>
+  </div>
+
+  <script>
+    const registerForm = document.getElementById('registerForm');
+    const registerMessage = document.getElementById('registerMessage');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('newUsername').value.trim();
+      const password = document.getElementById('newPassword').value.trim();
+      const role = document.getElementById('newRole').value;
+
+      try {
+        const res = await fetch('http://localhost:8080/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password, role })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          registerMessage.style.color = 'green';
+          registerMessage.textContent = 'Registration successful! Please login.';
+          registerForm.reset();
+        } else {
+          registerMessage.style.color = 'red';
+          registerMessage.textContent = data.message || 'Registration failed.';
+        }
+      } catch (err) {
+        registerMessage.style.color = 'red';
+        registerMessage.textContent = 'Server error. Please try again.';
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

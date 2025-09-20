@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loan Approvals</title>
+    <link rel="stylesheet" href="approval-styles.css" />
+</head>
+<body>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <button id="logoutBtn">Logout</button>
+    </nav>
+
+    <div class="container">
+        <h2>Loan Approvals</h2>
+        <table border="1" id="pendingLoansTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>Amount</th>
+                    <th>Term (months)</th>
+                    <th>Purpose</th>
+                    <th>Application Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const logoutBtn = document.getElementById('logoutBtn');
+        const message = document.getElementById('message');
+        const pendingTableBody = document.querySelector('#pendingLoansTable tbody');
+
+        logoutBtn.onclick = () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        };
+
+        async function loadPendingLoans() {
+            try {
+                const res = await fetch(`${API_BASE}/loans/pending`);
+                const loans = await res.json();
+
+                pendingTableBody.innerHTML = '';
+                loans.forEach(loan => {
+                    pendingTableBody.innerHTML += `
+                        <tr>
+                            <td>${loan.id}</td>
+                            <td>${loan.userId}</td>
+                            <td>${loan.amount}</td>
+                            <td>${loan.termInMonths}</td>
+                            <td>${loan.purpose}</td>
+                            <td>${loan.applicationDate}</td>
+                            <td>${loan.status}</td>
+                            <td>
+                                <button onclick="updateStatus(${loan.id}, 'APPROVED')">Approve</button>
+                                <button onclick="updateStatus(${loan.id}, 'REJECTED')">Reject</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.error(err);
+                message.textContent = 'Failed to load pending loans.';
+            }
+        }
+
+        async function updateStatus(loanId, status) {
+            try {
+                const res = await fetch(`${API_BASE}/loans/${loanId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    message.textContent = result.message;
+                    loadPendingLoans();
+                } else {
+                    message.textContent = 'Failed to update loan status.';
+                }
+            } catch (err) {
+                console.error(err);
+                message.textContent = 'Error communicating with server.';
+            }
+        }
+
+        loadPendingLoans();
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan Reports</title>
+  <link rel="stylesheet" href="reports-style.css">
+</head>
+<body>
+  <h1>Loan Reports</h1>
+
+  <!-- Loan Summary -->
+  <section>
+    <h2>Loan Summary</h2>
+    <table>
+      <tbody id="loanSummaryBody">
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- EMI Collections -->
+  <section>
+    <h2>EMI Collections (Current Year)</h2>
+    <table id="emiTable">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Amount Collected</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Overdue Loans -->
+  <section>
+    <h2>Overdue Loans (30+ days)</h2>
+    <table id="overdueLoansTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    // Load Loan Summary
+    async function loadLoanSummary() {
+      try {
+        const response = await fetch('http://localhost:8080/reports/loan-summary');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const summary = await response.json();
+
+        const tbody = document.getElementById('loanSummaryBody');
+        tbody.innerHTML = `
+          <tr><th>Total Loans</th><td>${summary.totalLoans}</td></tr>
+          <tr><th>Approved</th><td>${summary.approved}</td></tr>
+          <tr><th>Rejected</th><td>${summary.rejected}</td></tr>
+          <tr><th>Pending</th><td>${summary.pending}</td></tr>
+          <tr><th>Total Amount</th><td>${summary.totalAmount.toFixed(2)}</td></tr>
+        `;
+      } catch (error) {
+        console.error('Error loading loan summary:', error);
+      }
+    }
+
+    // Load EMI Collections - backend returns a Map object
+    async function loadEmiCollections() {
+      try {
+        const response = await fetch('http://localhost:8080/reports/emi');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+
+        const tbody = document.querySelector('#emiTable tbody');
+        tbody.innerHTML = '';
+
+        // Iterate over the Map object
+        Object.entries(data).forEach(([month, amount]) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${month}</td><td>${amount.toFixed(2)}</td>`;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading EMI collections:', error);
+      }
+    }
+
+    // Load Overdue Loans - returns List<LoanApplication>
+    async function loadOverdueLoans() {
+      try {
+        const response = await fetch('http://localhost:8080/reports/overdue');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const loans = await response.json();
+
+        if (!Array.isArray(loans)) {
+          console.error('Expected array but got:', loans);
+          return;
+        }
+
+        const tbody = document.querySelector('#overdueLoansTable tbody');
+        tbody.innerHTML = '';
+
+        loans.forEach(loan => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${loan.id}</td>
+            <td>${loan.amount.toFixed(2)}</td>
+            <td>${loan.status}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading overdue loans:', error);
+      }
+    }
+
+    // Load all reports on page load
+    window.onload = function () {
+      loadLoanSummary();
+      loadEmiCollections();
+      loadOverdueLoans();
+    };
+  </script>
+</body>
+</html>
+

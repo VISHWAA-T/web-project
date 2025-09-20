@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loan Management - Login</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body><br>
+    <center>
+    <h1>Welcome to Fortress Bank</h1>
+    </center>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required />
+            <input type="password" id="password" placeholder="Password" required />
+            <button type="submit">Login</button><br><br>
+            <a href="register.html"><button id="showRegisterBtn" type="button" style="color: #ffffff; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">
+  New user? Register here
+</button></a>
+        </form>
+        <p id="loginMessage" class="error"></p>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            const res = await fetch('http://localhost:8080/auth/login', {
+                method: 'POST',
+                credentials: "include", 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('userId', data.userId);
+                localStorage.setItem('role', data.role);
+                window.location.href = 'dashboard.html';
+            } else {
+                loginMessage.textContent = data.message || 'Invalid credentials';
+            }
+        });
+    </script>
+</body>
+</html>

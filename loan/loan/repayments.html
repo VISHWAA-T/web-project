@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan Repayments</title>
+  <link rel="stylesheet" href="repayment-style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Loan Repayments</h2>
+    
+    <label for="loanIdInput">Enter Loan ID:</label>
+    <input type="number" id="loanIdInput" placeholder="Loan ID" />
+    <button onclick="loadRepayments()">Load Repayments</button>
+    
+    <table id="repaymentsTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Payment Date</th>
+          <th>Amount Paid</th>
+          <th>Payment Method</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <h3>Add Repayment</h3>
+    <form id="repaymentForm" style="max-width: 400px;">
+      <input type="hidden" id="repaymentLoanId" />
+      
+      <label for="amountPaid">Amount Paid:</label>
+      <input type="number" id="amountPaid" step="0.01" required />
+      
+      <label for="paymentMethod">Payment Method:</label>
+      <select id="paymentMethod" required>
+        <option value="">Select</option>
+        <option value="Cash">Cash</option>
+        <option value="Online">Online</option>
+        <option value="Cheque">Cheque</option>
+      </select>
+      
+      <button type="submit">Add Repayment</button>
+    </form>
+    
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+    
+    const loanIdInput = document.getElementById('loanIdInput');
+    const repaymentsTable = document.getElementById('repaymentsTable');
+    const repaymentsTbody = repaymentsTable.querySelector('tbody');
+    const repaymentForm = document.getElementById('repaymentForm');
+    const repaymentLoanId = document.getElementById('repaymentLoanId');
+    const amountPaid = document.getElementById('amountPaid');
+    const paymentMethod = document.getElementById('paymentMethod');
+
+    const message = document.getElementById('message');
+    
+
+    // Load repayments for the entered loan ID
+    async function loadRepayments() {
+      const loanId = loanIdInput.value.trim();
+      if (!loanId) {
+        alert('Please enter a Loan ID');
+        return;
+      }
+      repaymentLoanId.value = loanId;
+      message.textContent = '';
+      repaymentsTbody.innerHTML = '';
+      repaymentsTable.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/repayments/loan/${loanId}`);
+        if (!res.ok) throw new Error('Failed to fetch repayments');
+        const repayments = await res.json();
+
+        if (repayments.length === 0) {
+          message.textContent = 'No repayments found for this loan.';
+          return;
+        }
+
+        repaymentsTable.style.display = '';
+        repayments.forEach(r => {
+          repaymentsTbody.innerHTML += `
+            <tr>
+              <td>${r.id}</td>
+              <td>${r.paymentDate}</td>
+              <td>${r.amountPaid.toFixed(2)}</td>
+              <td>${r.paymentMethod}</td>
+            </tr>
+          `;
+        });
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    }
+
+    // Handle adding new repayment
+    repaymentForm.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const loanId = repaymentLoanId.value;
+      const amount = parseFloat(amountPaid.value);
+      const method = paymentMethod.value;
+      const user = localStorage.getItem('userId');
+
+      if (!loanId || !amount || !method) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const repaymentData = {
+        loanId: Number(loanId),
+        amountPaid: amount,
+        paymentMethod: method,
+        userId: user,
+        // paymentDate will be set by backend to LocalDate.now()
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/repayments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(repaymentData),
+        });
+        if (!res.ok) throw new Error('Failed to add repayment');
+        message.textContent = 'Repayment added successfully.';
+        repaymentForm.reset();
+        loadRepayments();
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>

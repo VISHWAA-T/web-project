@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="dashboard-styles.css" />
+</head>
+<body>
+    <nav>
+        <button id="logoutBtn">Logout</button>
+    </nav>
+
+    <div class="container">
+        <h2>Welcome to Loan Management System</h2>
+        <div id="links"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const role = localStorage.getItem('role');
+            const userId = localStorage.getItem('userId');
+
+            if (!role || !userId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const linksDiv = document.getElementById('links');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            logoutBtn.onclick = () => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            };
+
+            if (role === 'ADMIN') {
+                linksDiv.innerHTML = `
+                    <ul>
+                        <li><a href="users.html">Manage Users</a></li>
+                        <li><a href="approvals.html">Loan Approvals</a></li>
+                        <li><a href="loans.html">View Loans</a></li>
+                        <li><a href="reports.html">Reports</a></li>
+                    </ul>`;
+            } else if (role === 'CUSTOMER') {
+                linksDiv.innerHTML = `
+                    <ul>
+                        <li><a href="loans.html">Apply/View Loans</a></li>
+                        <li><a href="repayments.html">Repayments</a></li>
+                    </ul>`;
+            }
+        });
+    </script>
+</body>
+</html>

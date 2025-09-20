@@ -1,0 +1,185 @@
+* {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:  #e8f0f8;;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    nav {
+      background-color: #2c3e50;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    nav button {
+      background: #e74c3c;
+      border: none;
+      padding: 8px 16px;
+      color: white;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav button:hover {
+      background-color: #c0392b;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    form#userForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+      align-items: center;
+    }
+
+    form#userForm input[type="text"],
+    form#userForm input[type="password"],
+    form#userForm select {
+      flex: 1 1 200px;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+
+    form#userForm input[type="text"]:focus,
+    form#userForm input[type="password"]:focus,
+    form#userForm select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    form#userForm button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background-color 0.3s ease;
+    }
+
+    form#userForm button[type="submit"] {
+      background-color: #3498db;
+      color: white;
+    }
+
+    form#userForm button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+
+    form#userForm button#clearBtn {
+      background-color: #95a5a6;
+      color: white;
+    }
+
+    form#userForm button#clearBtn:hover {
+      background-color: #7f8c8d;
+    }
+
+    table#usersTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    table#usersTable thead {
+      background-color: #3498db;
+      color: white;
+    }
+
+    table#usersTable th,
+    table#usersTable td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table#usersTable tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table#usersTable tbody tr:hover {
+      background-color: #d6eaff;
+    }
+
+    table#usersTable button {
+      background-color: #2ecc71;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 6px;
+      transition: background-color 0.3s ease;
+    }
+
+    table#usersTable button:hover {
+      background-color: #27ae60;
+    }
+
+    table#usersTable button:last-child {
+      background-color: #e74c3c;
+    }
+
+    table#usersTable button:last-child:hover {
+      background-color: #c0392b;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: 600;
+      color: #27ae60;
+      min-height: 18px;
+    }
+
+    @media (max-width: 600px) {
+      form#userForm {
+        flex-direction: column;
+      }
+
+      form#userForm input,
+      form#userForm select,
+      form#userForm button {
+        width: 100%;
+      }
+
+      table#usersTable th,
+      table#usersTable td {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+    }

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan Management</title>
+  <link rel="stylesheet" href="loan-styles.css" />
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <button id="logoutBtn">Logout</button>
+  </nav>
+
+  <div class="container">
+    <h2>Apply for a Loan</h2>
+    <form id="loanForm">
+      <input type="number" id="amount" placeholder="Loan Amount" required min="1" />
+      <input type="number" id="term" placeholder="Term (Months)" required min="1" />
+      <input type="text" id="purpose" placeholder="Purpose" required />
+      <button type="submit">Apply</button>
+    </form>
+    <p id="loanMessage"></p>
+  </div>
+
+  <div class="container">
+    <h2>Loan Applications</h2>
+    <table border="1" id="loansTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User ID</th>
+          <th>Amount</th>
+          <th>Term</th>
+          <th>Status</th>
+          <th>Purpose</th>
+          <th>Interest Rate</th>
+          <th>EMI Amount</th>
+          <th>EMI Months</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be inserted here -->
+      </tbody>
+    </table>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080';
+    const role = localStorage.getItem('role');
+    const userId = localStorage.getItem('userId');
+
+    const loanForm = document.getElementById('loanForm');
+    const loanMessage = document.getElementById('loanMessage');
+    const loansTableBody = document.querySelector('#loansTable tbody');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.onclick = () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    };
+
+    loanForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const amount = parseFloat(document.getElementById('amount').value);
+      const termInMonths = parseInt(document.getElementById('term').value);
+      const purpose = document.getElementById('purpose').value.trim();
+
+      if (!amount || !termInMonths || !purpose) {
+        loanMessage.textContent = 'All fields are required.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/loans/apply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: parseInt(userId), amount, termInMonths, purpose })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          loanMessage.style.color = 'green';
+          loanMessage.textContent = 'Loan applied successfully.';
+          loanForm.reset();
+          loadLoans();
+        } else {
+          loanMessage.style.color = 'red';
+          loanMessage.textContent = data.message || 'Failed to apply.';
+        }
+      } catch (err) {
+        loanMessage.style.color = 'red';
+        loanMessage.textContent = 'Network error.';
+      }
+    });
+
+    async function loadLoans() {
+      let url = '';
+
+      if (role === 'ADMIN') {
+        url = `${API_BASE}/loans?status=APPROVED`;
+      } else {
+        url = `${API_BASE}/loans/user/${userId}`;
+      }
+
+      try {
+        const res = await fetch(url);
+        const loans = await res.json();
+
+        loansTableBody.innerHTML = '';
+
+        if (!Array.isArray(loans) || loans.length === 0) {
+          loansTableBody.innerHTML = `<tr><td colspan="10">No loans found.</td></tr>`;
+          return;
+        }
+
+        loans.forEach((loan) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${loan.id}</td>
+            <td>${loan.userId}</td>
+            <td>${loan.amount}</td>
+            <td>${loan.termInMonths}</td>
+            <td>${loan.status}</td>
+            <td>${loan.purpose}</td>
+            <td>${loan.interestRate || '-'}</td>
+            <td>${loan.emiAmount ? loan.emiAmount.toFixed(2) : '-'}</td>
+            <td>${loan.emiMonths || '-'}</td>
+            <td>
+              ${role === 'ADMIN' && loan.status === 'PENDING'
+                ? `<button onclick="approveLoan(${loan.id})">Approve</button>
+                   <button onclick="rejectLoan(${loan.id})">Reject</button>`
+                : ''
+              }
+            </td>
+          `;
+          loansTableBody.appendChild(row);
+        });
+      } catch (err) {
+        document.getElementById('message').textContent = 'Error loading loans.';
+      }
+    }
+
+    async function approveLoan(id) {
+      if (confirm('Approve this loan?')) {
+        await updateStatus(id, 'APPROVED');
+      }
+    }
+
+    async function rejectLoan(id) {
+      if (confirm('Reject this loan?')) {
+        await updateStatus(id, 'REJECTED');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const res = await fetch(`${API_BASE}/loans/${id}/status?status=${status}`, {
+          method: 'PUT'
+        });
+
+        if (res.ok) {
+          loadLoans();
+        } else {
+          alert('Failed to update status.');
+        }
+      } catch (err) {
+        alert('Network error.');
+      }
+    }
+
+    loadLoans();
+  </script>
+</body>
+</html>
